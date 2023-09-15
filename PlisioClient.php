@@ -1,14 +1,52 @@
 <?php
-
-class PlisioClient
+class PlisioPayment
 {
-    protected $secretKey = '';
     public $apiEndPoint = 'https://plisio.net/api/v1';
+    private  $secretKey;
 
-    public function __construct($secretKey)
+
+
+    public function __construct(string $plisio_token)
     {
-        $this->secretKey = $secretKey;
+        $this->secretKey = $plisio_token;
     }
+
+    public function createInvoice(array $invoiceData)
+    {
+
+        $response = $this->createTransaction($invoiceData);
+
+
+        if ($response && $response['status'] !== 'error' && !empty($response['data'])) {
+            return $response['data'];
+        } else {
+            throw new Exception($response['data']['message']);
+        }
+    }
+
+    public function verifyCallbackData()
+    {
+        if (!isset($_POST['verify_hash'])) {
+            return false;
+        }
+        $post = $_POST;
+        $verifyHash = $post['verify_hash'];
+        unset($post['verify_hash']);
+        ksort($post);
+        if (isset($post['expire_utc'])) {
+            $post['expire_utc'] = (string)$post['expire_utc'];
+        }
+        if (isset($post['tx_urls'])) {
+            $post['tx_urls'] = html_entity_decode($post['tx_urls']);
+        }
+        $postString = serialize($post);
+        $checkKey = hash_hmac('sha1', $postString, $this->secretKey);
+        if ($checkKey != $verifyHash) {
+            return false;
+        }
+        return true;
+    }
+
 
     protected function getApiUrl($commandUrl)
     {
@@ -71,7 +109,7 @@ class PlisioClient
     {
         // Generate the query string
         $queryString = '';
-        if (!empty($this->secretKey)){
+        if (!empty($this->secretKey)) {
             $req['api_key'] = $this->secretKey;
         }
         if (!empty($req)) {
