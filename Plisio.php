@@ -5,11 +5,16 @@ class PlisioPayment
     private  $secretKey;
 
 
-
-    public function __construct(string $plisio_token)
+    public function __construct(string $plisio_secret)
     {
-        $this->secretKey = $plisio_token;
+        $this->secretKey = $plisio_secret;
     }
+
+    /**
+     * create invoice
+     * @param array $invoiceData your invoice for create payment see example at https://google.com
+     * @return array created invoice info
+     */
 
     public function createInvoice(array $invoiceData)
     {
@@ -23,6 +28,10 @@ class PlisioPayment
             throw new Exception($response['data']['message']);
         }
     }
+
+    /**
+     * @return boolean return status of transaction
+     */
 
     public function verifyCallbackData()
     {
