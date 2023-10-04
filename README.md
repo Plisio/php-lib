@@ -7,7 +7,7 @@ Using this library, you can easily create your own version of the payment plugin
 
 ```php
 <?php
-rquire_once __DIR__ . '/Plisio.php';
+require_once __DIR__ . '/Plisio.php';
 
 $plisio = new PlisioPayment(API_SECRET);
 ?>
