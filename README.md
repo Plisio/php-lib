@@ -52,7 +52,7 @@ header('location: ' . $invoice_info['invoice_url']);
 ```php
 <?php
 
-$transaction_status = $plisio->verifyCallbackData()
+$transaction_status = $plisio->verifyCallbackData();
 
 
 if ($trasaction_status === true) {

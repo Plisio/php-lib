@@ -12,7 +12,7 @@ class PlisioPayment
 
     /**
      * create invoice
-     * @param array $invoiceData your invoice for create payment see example at https://google.com
+     * @param array $invoiceData your invoice for create payment see example at https://github.com/thezass/Plisio.net-api-php
      * @return array created invoice info
      */
 
