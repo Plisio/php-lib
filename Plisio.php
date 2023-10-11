@@ -1,4 +1,20 @@
 <?php
+
+class invoiceResult
+{
+    public string $txn_id;
+    public string $invoice_url;
+
+
+    public function __construct($id, $url)
+    {
+        $this->txn_id = $id;
+        $this->invoice_url = $url;
+    }
+}
+
+
+
 class PlisioPayment
 {
     public $apiEndPoint = 'https://plisio.net/api/v1';
@@ -13,21 +29,22 @@ class PlisioPayment
     /**
      * create invoice
      * @param array $invoiceData your invoice for create payment see example at https://github.com/thezass/Plisio.net-api-php
-     * @return array created invoice info
+     * @return invoiceResult result of created invoice
      */
 
-    public function createInvoice(array $invoiceData)
+    public function createInvoice(array $invoiceData): invoiceResult
     {
 
         $response = $this->createTransaction($invoiceData);
 
 
         if ($response && $response['status'] !== 'error' && !empty($response['data'])) {
-            return $response['data'];
+            return new invoiceResult($response['data']['txn_id'], $response['data']['invoice_url']);
         } else {
             throw new Exception($response['data']['message']);
         }
     }
+
 
     /**
      * @return boolean return status of transaction
