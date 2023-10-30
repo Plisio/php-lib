@@ -1,14 +1,78 @@
 <?php
 
-class PlisioClient
+class invoiceResult
 {
-    protected $secretKey = '';
-    public $apiEndPoint = 'https://plisio.net/api/v1';
+    public string $txn_id;
+    public string $invoice_url;
 
-    public function __construct($secretKey)
+
+    public function __construct($id, $url)
     {
-        $this->secretKey = $secretKey;
+        $this->txn_id = $id;
+        $this->invoice_url = $url;
     }
+}
+
+
+
+class PlisioPayment
+{
+    public $apiEndPoint = 'https://plisio.net/api/v1';
+    private  $secretKey;
+
+
+    public function __construct(string $plisio_secret)
+    {
+        $this->secretKey = $plisio_secret;
+    }
+
+    /**
+     * create invoice
+     * @param array $invoiceData your invoice for create payment see example at https://github.com/thezass/Plisio.net-api-php
+     * @return invoiceResult result of created invoice
+     */
+
+    public function createInvoice(array $invoiceData): invoiceResult
+    {
+
+        $response = $this->createTransaction($invoiceData);
+
+
+        if ($response && $response['status'] !== 'error' && !empty($response['data'])) {
+            return new invoiceResult($response['data']['txn_id'], $response['data']['invoice_url']);
+        } else {
+            throw new Exception($response['data']['message']);
+        }
+    }
+
+
+    /**
+     * @return boolean return status of transaction
+     */
+
+    public function verifyCallbackData()
+    {
+        if (!isset($_POST['verify_hash'])) {
+            return false;
+        }
+        $post = $_POST;
+        $verifyHash = $post['verify_hash'];
+        unset($post['verify_hash']);
+        ksort($post);
+        if (isset($post['expire_utc'])) {
+            $post['expire_utc'] = (string)$post['expire_utc'];
+        }
+        if (isset($post['tx_urls'])) {
+            $post['tx_urls'] = html_entity_decode($post['tx_urls']);
+        }
+        $postString = serialize($post);
+        $checkKey = hash_hmac('sha1', $postString, $this->secretKey);
+        if ($checkKey != $verifyHash) {
+            return false;
+        }
+        return true;
+    }
+
 
     protected function getApiUrl($commandUrl)
     {
@@ -71,7 +135,7 @@ class PlisioClient
     {
         // Generate the query string
         $queryString = '';
-        if (!empty($this->secretKey)){
+        if (!empty($this->secretKey)) {
             $req['api_key'] = $this->secretKey;
         }
         if (!empty($req)) {
