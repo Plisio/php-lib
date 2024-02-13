@@ -31,7 +31,7 @@ public function createInvoice($order_info)
         'source_currency' => $order_info['currency'], //For example: 'USD'.
         'cancel_url' => 'https://myshop.com/order/failed/' . $order_info['number'], //Url to which Plisio will redirect customer in a case of a cancelled order.
         'callback_url' => 'https://myshop.com/order/callback', //Url to which Plisio will send order related info about status changes.
-        'success_url' => 'https://myshop.com/order/success/' . $order_info['number'], //Url to which Plisio will redirect customer in a case of successful order.
+        'success_callback_url' => 'https://myshop.com/order/success/' . $order_info['number'], //Url to which Plisio will redirect customer in a case of successful order.
         'email' => $order_info['customer_email'], //Customer email. If not specified - customer will be prompted to enter email on Plisio side.
         'plugin' => 'PluginName', //Specify uniq name related to your shop, so it'll be easier to track issues with your invoices if any occurs.
         'version' => 'PluginVersion' //Specify plugin version.
